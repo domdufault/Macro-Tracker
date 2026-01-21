@@ -5,48 +5,39 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#0b0d12" />
   <title>Dom’s Daily Macros</title>
+
   <style>
-    /* =========================
-       THEME (Dark default)
-       ========================= */
     :root{
       --bg0:#0b0d12;
       --bg1:#10131a;
       --card: rgba(23,26,33,0.88);
-      --cardSolid:#171a21;
       --border: rgba(255,255,255,0.08);
       --shadow: rgba(0,0,0,0.25);
       --text:#e9ecf1;
       --muted:#aab2c0;
-
       --ringTrack:#2a2f3a;
 
-      /* Ring colors (distinct) */
-      --calColor:#ffb703;   /* calories */
-      --proColor:#7ee081;   /* protein */
-      --fatColor:#4dabff;   /* fat */
-      --fibColor:#b08cff;   /* fiber */
+      --calColor:#ffb703;
+      --proColor:#7ee081;
+      --fatColor:#4dabff;
+      --fibColor:#b08cff;
 
       --dangerBg:#2a1420;
       --btnBg:#202535;
       --btnMuted:#141824;
 
-      --radius:46;
-      --circ:289.02652413026095; /* 2πr for r=46 */
+      --circ:289.02652413026095;
     }
 
     body.light{
       --bg0:#f5f7fb;
       --bg1:#e9eef8;
       --card: rgba(255,255,255,0.92);
-      --cardSolid:#ffffff;
       --border: rgba(10,18,32,0.10);
       --shadow: rgba(10,18,32,0.12);
       --text:#0c1220;
       --muted:#465063;
-
       --ringTrack:#d7deeb;
-
       --dangerBg:#ffe7ee;
       --btnBg:#0f172a;
       --btnMuted:#e9eef8;
@@ -61,26 +52,34 @@
     }
 
     .wrap{max-width:980px;margin:0 auto;padding:18px}
-    .top{
-      display:flex; gap:12px; flex-wrap:wrap;
-      align-items:flex-end; justify-content:space-between;
+
+    .title{
+      font-size:36px;
+      font-weight:900;
+      letter-spacing:-0.02em;
+      margin-bottom:16px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
       margin-bottom:14px;
     }
 
-    .title{
-      font-size:28px;
-      font-weight:900;
-      letter-spacing:-0.02em;
-      line-height:1.05;
+    .tab{
+      flex:1;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.2);
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
     }
 
-    .pill{
-      font-size:12px; color:var(--muted);
-      border:1px solid var(--border);
-      padding:7px 10px; border-radius:999px;
-      background:rgba(0,0,0,0.14);
+    .tab.active{
+      background:var(--btnBg);
     }
-    body.light .pill{ background:rgba(255,255,255,0.70); }
 
     .card{
       background:var(--card);
@@ -88,77 +87,72 @@
       border-radius:18px;
       padding:14px;
       box-shadow:0 10px 30px var(--shadow);
-      backdrop-filter: blur(10px);
+      margin-bottom:12px;
     }
 
-    .grid{display:grid; gap:12px}
-    @media(min-width:820px){ .grid{grid-template-columns: 1.15fr .85fr} }
-
-    /* Rings */
     .rings{
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-columns:repeat(2,1fr);
       gap:12px;
     }
-    @media(min-width:820px){ .rings{grid-template-columns:repeat(4,minmax(0,1fr));} }
 
     .ringCard{
-      display:flex; flex-direction:column;
-      align-items:center; gap:8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
       padding:14px;
+      background:rgba(0,0,0,0.15);
+      border-radius:16px;
+      border:1px solid var(--border);
     }
 
-    .ringLabel{font-weight:800; font-size:18px}
+    .ringLabel{font-weight:900;font-size:18px}
+
+    .ring{
+      width:118px;height:118px;position:relative;
+    }
+
+    .ring svg{width:118px;height:118px;transform:rotate(-90deg)}
+
+    .center{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .big{font-size:22px;font-weight:900}
+    .small{font-size:12px;color:var(--muted)}
+
+    .track{stroke:var(--ringTrack);stroke-width:10;fill:none}
+    .prog{stroke-width:10;fill:none;stroke-linecap:round;stroke-dasharray:var(--circ);stroke-dashoffset:var(--circ)}
+
     .ringNums{font-size:13px;color:var(--muted)}
 
-    .ring{width:118px;height:118px; position:relative;}
-    .ring svg{width:118px;height:118px; transform:rotate(-90deg)}
-    .ring .center{
-      position:absolute; inset:0;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      gap:2px;
-    }
-    .center .big{font-size:22px;font-weight:900}
-    .center .small{font-size:12px;color:var(--muted)}
-    .track{stroke:var(--ringTrack); stroke-width:10; fill:none}
-    .prog{
-      stroke-width:10; fill:none; stroke-linecap:round;
-      stroke-dasharray:var(--circ); stroke-dashoffset:var(--circ);
-    }
-
-    /* Section header row inside cards */
-    .sectionHead{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; flex-wrap:wrap;
-      margin-bottom:8px;
-    }
-    .sectionTitle{
-      font-size:16px; font-weight:900;
-      letter-spacing:-0.01em;
-    }
-
-    /* Add entry area (separate card) */
     .formRow{
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(4,1fr);
       gap:10px;
       margin-top:10px;
     }
-    .formRow input{
-      width:100%;
-      padding:11px 10px;
+
+    input{
+      padding:11px;
       border-radius:12px;
       border:1px solid var(--border);
-      background:rgba(0,0,0,0.18);
+      background:rgba(0,0,0,0.2);
       color:var(--text);
-      outline:none;
     }
-    body.light .formRow input{ background:rgba(255,255,255,0.75); }
-    .formRow input::placeholder{color:#687187}
-    body.light .formRow input::placeholder{color:#667089}
 
-    .btnRow{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
+    .btnRow{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+    }
+
     button{
       padding:10px 12px;
       border-radius:12px;
@@ -168,500 +162,317 @@
       font-weight:800;
       cursor:pointer;
     }
-    body.light button{
-      color:#fff;
-    }
-    button:active{transform:translateY(1px)}
-    .danger{background:var(--dangerBg); color:var(--text)}
-    .mutedBtn{background:var(--btnMuted); color:var(--text)}
-    body.light .mutedBtn{ color:var(--text); }
 
-    /* Log */
+    .danger{background:var(--dangerBg);color:var(--text)}
+
     .log{
-      margin-top:10px;
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
       gap:8px;
-      max-height:520px;
+      max-height:400px;
       overflow:auto;
-      padding-right:4px;
     }
+
     .entry{
       display:grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns:1fr auto;
       gap:10px;
-      align-items:center;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:rgba(0,0,0,0.14);
-    }
-    body.light .entry{ background:rgba(255,255,255,0.72); }
-
-    .entry .vals{font-size:14px; font-weight:800}
-    .entry .meta{color:var(--muted); font-size:12px; margin-top:2px}
-
-    .entryActions{
-      display:flex; align-items:center; gap:8px;
-    }
-    .delBtn{
-      width:34px; height:34px;
+      padding:10px;
       border-radius:12px;
-      display:inline-flex; align-items:center; justify-content:center;
       border:1px solid var(--border);
-      background:rgba(255,255,255,0.06);
-      color:var(--text);
+      background:rgba(0,0,0,0.15);
+    }
+
+    .delBtn{
+      background:rgba(255,255,255,0.1);
+      border-radius:10px;
+      padding:6px 10px;
+      border:1px solid var(--border);
       font-weight:900;
       cursor:pointer;
     }
-    body.light .delBtn{ background:rgba(10,18,32,0.06); }
 
-    /* Bottom controls (reset + theme toggle) */
-    .bottomControls{
-      margin-top:12px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; flex-wrap:wrap;
+    .settingsRow{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    .toggleWrap{
-      display:flex; align-items:center; gap:10px;
-      color:var(--muted);
-      font-size:13px;
-      font-weight:800;
-    }
     .switch{
-      position:relative; width:54px; height:32px;
+      width:54px;height:32px;
       border-radius:999px;
-      background:rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.1);
       border:1px solid var(--border);
+      position:relative;
       cursor:pointer;
-      flex:0 0 auto;
     }
-    body.light .switch{ background:rgba(10,18,32,0.06); }
-    .knob{
-      position:absolute; top:3px; left:3px;
-      width:26px; height:26px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.82);
-      transition: transform 160ms ease;
-    }
-    body.light .knob{ background:#0f172a; }
-    .switch.on .knob{ transform: translateX(22px); }
 
-    /* Small helper */
-    .mutedText{color:var(--muted); font-size:13px}
+    .knob{
+      width:26px;height:26px;
+      border-radius:999px;
+      background:#fff;
+      position:absolute;
+      top:3px;left:3px;
+      transition:0.2s;
+    }
+
+    .switch.on .knob{transform:translateX(22px)}
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="top">
-      <div class="title">Dom’s Daily Macros</div>
-      <div class="pill" id="dayPill"></div>
+
+    <div class="title">Dom’s Daily Macros</div>
+
+    <div class="tabs">
+      <button class="tab active" id="tabMain">Tracker</button>
+      <button class="tab" id="tabSettings">Settings</button>
     </div>
 
-    <div class="grid">
-      <!-- Left column: Rings + Add Entry -->
-      <div class="gridLeft" style="display:flex; flex-direction:column; gap:12px;">
-        <!-- Rings Card -->
-        <div class="card">
-          <div class="sectionHead">
-            <div class="sectionTitle">Progress</div>
-            <div class="pill" id="totalsPill"></div>
-          </div>
+    <!-- MAIN TRACKER -->
+    <div id="mainView">
 
-          <div class="rings">
-            <!-- Calories -->
-            <div class="card ringCard">
-              <div class="ringLabel">Calories</div>
-              <div class="ring">
-                <svg viewBox="0 0 120 120">
-                  <circle class="track" cx="60" cy="60" r="46"></circle>
-                  <circle class="prog" id="ringCal" cx="60" cy="60" r="46"></circle>
-                </svg>
-                <div class="center">
-                  <div class="big" id="calNow">0</div>
-                  <div class="small">/ <span id="calGoal">2000</span></div>
-                </div>
-              </div>
-              <div class="ringNums"><span id="calRem">2000</span> remaining</div>
-            </div>
-
-            <!-- Protein -->
-            <div class="card ringCard">
-              <div class="ringLabel">Protein</div>
-              <div class="ring">
-                <svg viewBox="0 0 120 120">
-                  <circle class="track" cx="60" cy="60" r="46"></circle>
-                  <circle class="prog" id="ringPro" cx="60" cy="60" r="46"></circle>
-                </svg>
-                <div class="center">
-                  <div class="big" id="proNow">0</div>
-                  <div class="small">/ <span id="proGoal">120</span> g</div>
-                </div>
-              </div>
-              <div class="ringNums"><span id="proRem">120</span> g needed</div>
-            </div>
-
-            <!-- Fat -->
-            <div class="card ringCard">
-              <div class="ringLabel">Fat</div>
-              <div class="ring">
-                <svg viewBox="0 0 120 120">
-                  <circle class="track" cx="60" cy="60" r="46"></circle>
-                  <circle class="prog" id="ringFat" cx="60" cy="60" r="46"></circle>
-                </svg>
-                <div class="center">
-                  <div class="big" id="fatNow">0</div>
-                  <div class="small">/ <span id="fatGoal">60</span> g</div>
-                </div>
-              </div>
-              <div class="ringNums"><span id="fatRem">60</span> g needed</div>
-            </div>
-
-            <!-- Fiber -->
-            <div class="card ringCard">
-              <div class="ringLabel">Fiber</div>
-              <div class="ring">
-                <svg viewBox="0 0 120 120">
-                  <circle class="track" cx="60" cy="60" r="46"></circle>
-                  <circle class="prog" id="ringFib" cx="60" cy="60" r="46"></circle>
-                </svg>
-                <div class="center">
-                  <div class="big" id="fibNow">0</div>
-                  <div class="small">/ <span id="fibGoal">30</span> g</div>
-                </div>
-              </div>
-              <div class="ringNums"><span id="fibRem">30</span> g needed</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Add Entry Card (separate section) -->
-        <div class="card">
-          <div class="sectionHead">
-            <div class="sectionTitle">Add Entry</div>
-            <div class="mutedText">Enter what you ate and add</div>
-          </div>
-
-          <div class="formRow">
-            <input id="inCal" inputmode="numeric" placeholder="Calories" />
-            <input id="inPro" inputmode="numeric" placeholder="Protein (g)" />
-            <input id="inFat" inputmode="numeric" placeholder="Fat (g)" />
-            <input id="inFib" inputmode="numeric" placeholder="Fiber (g)" />
-          </div>
-
-          <div class="btnRow">
-            <button id="addBtn">Add Entry</button>
-            <button class="mutedBtn" id="clearBtn" type="button">Clear</button>
-          </div>
-        </div>
-
-        <!-- Bottom Controls (moved Reset + theme toggle here) -->
-        <div class="card">
-          <div class="bottomControls">
-            <button class="danger" id="resetBtn">Reset Day</button>
-
-            <div class="toggleWrap">
-              <span>Light mode</span>
-              <div class="switch" id="themeSwitch" role="switch" aria-checked="false" tabindex="0">
-                <div class="knob"></div>
+      <div class="card">
+        <div class="rings">
+          <div class="ringCard">
+            <div class="ringLabel">Calories</div>
+            <div class="ring">
+              <svg viewBox="0 0 120 120">
+                <circle class="track" cx="60" cy="60" r="46"/>
+                <circle class="prog" id="ringCal" cx="60" cy="60" r="46"/>
+              </svg>
+              <div class="center">
+                <div class="big" id="calNow">0</div>
+                <div class="small">/ <span id="calGoal">2000</span></div>
               </div>
             </div>
+            <div class="ringNums"><span id="calRem">2000</span> remaining</div>
+          </div>
+
+          <div class="ringCard">
+            <div class="ringLabel">Protein</div>
+            <div class="ring">
+              <svg viewBox="0 0 120 120">
+                <circle class="track" cx="60" cy="60" r="46"/>
+                <circle class="prog" id="ringPro" cx="60" cy="60" r="46"/>
+              </svg>
+              <div class="center">
+                <div class="big" id="proNow">0</div>
+                <div class="small">/ <span id="proGoal">120</span> g</div>
+              </div>
+            </div>
+            <div class="ringNums"><span id="proRem">120</span> g needed</div>
+          </div>
+
+          <div class="ringCard">
+            <div class="ringLabel">Fat</div>
+            <div class="ring">
+              <svg viewBox="0 0 120 120">
+                <circle class="track" cx="60" cy="60" r="46"/>
+                <circle class="prog" id="ringFat" cx="60" cy="60" r="46"/>
+              </svg>
+              <div class="center">
+                <div class="big" id="fatNow">0</div>
+                <div class="small">/ <span id="fatGoal">60</span> g</div>
+              </div>
+            </div>
+            <div class="ringNums"><span id="fatRem">60</span> g needed</div>
+          </div>
+
+          <div class="ringCard">
+            <div class="ringLabel">Fiber</div>
+            <div class="ring">
+              <svg viewBox="0 0 120 120">
+                <circle class="track" cx="60" cy="60" r="46"/>
+                <circle class="prog" id="ringFib" cx="60" cy="60" r="46"/>
+              </svg>
+              <div class="center">
+                <div class="big" id="fibNow">0</div>
+                <div class="small">/ <span id="fibGoal">30</span> g</div>
+              </div>
+            </div>
+            <div class="ringNums"><span id="fibRem">30</span> g needed</div>
           </div>
         </div>
       </div>
 
-      <!-- Right column: Log -->
       <div class="card">
-        <div class="sectionHead">
-          <div>
-            <div class="sectionTitle" style="font-size:18px">Today’s Log</div>
-          </div>
+        <div class="formRow">
+          <input id="inCal" placeholder="Calories">
+          <input id="inPro" placeholder="Protein (g)">
+          <input id="inFat" placeholder="Fat (g)">
+          <input id="inFib" placeholder="Fiber (g)">
         </div>
+        <div class="btnRow">
+          <button id="addBtn">Add Entry</button>
+        </div>
+      </div>
 
+      <div class="card">
+        <h3>Today’s Log</h3>
         <div class="log" id="log"></div>
       </div>
+
     </div>
+
+    <!-- SETTINGS -->
+    <div id="settingsView" style="display:none;">
+
+      <div class="card settingsRow">
+        <h3>Appearance</h3>
+        <div class="switch" id="themeSwitch"><div class="knob"></div></div>
+      </div>
+
+      <div class="card settingsRow">
+        <h3>Goals</h3>
+        <input id="setCal" placeholder="Calories goal">
+        <input id="setPro" placeholder="Protein goal">
+        <input id="setFat" placeholder="Fat goal">
+        <input id="setFib" placeholder="Fiber goal">
+        <button id="saveGoals">Save Goals</button>
+      </div>
+
+      <div class="card settingsRow">
+        <h3>Reset</h3>
+        <button class="danger" id="resetBtn">Reset Day</button>
+      </div>
+
+    </div>
+
   </div>
 
 <script>
 (() => {
-  // =========================
-  // SETTINGS
-  // =========================
-  const GOALS = { cal: 2000, pro: 120, fat: 60, fib: 30 };
+  const KEY = "dom_macros_v3";
+  const THEME = "dom_theme";
 
-  // Storage keys
-  const KEY_DATA  = "dom_macros_v2";
-  const KEY_THEME = "dom_macros_theme";
+  let goals = { cal:2000, pro:120, fat:60, fib:30 };
 
-  const todayKey = () => new Date().toISOString().slice(0,10); // YYYY-MM-DD
-  const $ = (id) => document.getElementById(id);
+  let state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
 
-  // =========================
-  // STATE
-  // =========================
-  let state = {
-    day: todayKey(),
-    totals: { cal: 0, pro: 0, fat: 0, fib: 0 },
-    log: [] // each: {id, cal, pro, fat, fib, time}
-  };
+  const $ = id => document.getElementById(id);
 
-  // =========================
-  // THEME
-  // =========================
-  function loadTheme(){
-    const t = localStorage.getItem(KEY_THEME) || "dark";
-    setTheme(t, false);
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify({goals, state}));
   }
 
-  function setTheme(theme, persist=true){
-    const isLight = theme === "light";
-    document.body.classList.toggle("light", isLight);
-
-    // Switch UI
-    const sw = $("themeSwitch");
-    sw.classList.toggle("on", isLight);
-    sw.setAttribute("aria-checked", String(isLight));
-
-    // Update browser theme color (nice on iOS)
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", isLight ? "#f5f7fb" : "#0b0d12");
-
-    if (persist) localStorage.setItem(KEY_THEME, theme);
-  }
-
-  function toggleTheme(){
-    const isLight = document.body.classList.contains("light");
-    setTheme(isLight ? "dark" : "light");
-  }
-
-  // =========================
-  // DATA LOAD/SAVE
-  // =========================
-  function load() {
-    const raw = localStorage.getItem(KEY_DATA);
-    if (raw) {
-      try { state = JSON.parse(raw); } catch(e) {}
-    }
-
-    // Auto-reset if day changed
-    if (state.day !== todayKey()) {
-      state.day = todayKey();
-      state.totals = { cal: 0, pro: 0, fat: 0, fib: 0 };
-      state.log = [];
-      save();
+  function load(){
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const data = JSON.parse(raw);
+      goals = data.goals;
+      state = data.state;
     }
   }
 
-  function save() {
-    localStorage.setItem(KEY_DATA, JSON.stringify(state));
+  function setRing(el, value, goal, color){
+    const pct = Math.min(value/goal,1);
+    const dash = 289;
+    el.style.strokeDashoffset = dash * (1 - pct);
+    el.style.stroke = color;
   }
 
-  // =========================
-  // HELPERS
-  // =========================
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+  function render(){
+    $("calNow").textContent = state.totals.cal;
+    $("proNow").textContent = state.totals.pro;
+    $("fatNow").textContent = state.totals.fat;
+    $("fibNow").textContent = state.totals.fib;
 
-  function fmt1(n){
-    return (Math.round(n * 10) / 10).toString();
-  }
+    $("calGoal").textContent = goals.cal;
+    $("proGoal").textContent = goals.pro;
+    $("fatGoal").textContent = goals.fat;
+    $("fibGoal").textContent = goals.fib;
 
-  function nowTime() {
-    const d = new Date();
-    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  }
+    $("calRem").textContent = Math.max(0, goals.cal - state.totals.cal);
+    $("proRem").textContent = Math.max(0, goals.pro - state.totals.pro);
+    $("fatRem").textContent = Math.max(0, goals.fat - state.totals.fat);
+    $("fibRem").textContent = Math.max(0, goals.fib - state.totals.fib);
 
-  function parseNum(v){
-    if (!v) return 0;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  }
+    setRing($("ringCal"), state.totals.cal, goals.cal, "#ffb703");
+    setRing($("ringPro"), state.totals.pro, goals.pro, "#7ee081");
+    setRing($("ringFat"), state.totals.fat, goals.fat, "#4dabff");
+    setRing($("ringFib"), state.totals.fib, goals.fib, "#b08cff");
 
-  function uuid(){
-    // simple unique-ish id
-    return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
-  }
-
-  // =========================
-  // RINGS
-  // =========================
-  function setRing(el, value, goal, strokeColorVar){
-    const pct = goal === 0 ? 0 : (value / goal);
-    const dash = 289.02652413026095;
-    const clamped = clamp(pct, 0, 1);
-    const offset = dash * (1 - clamped);
-    el.style.strokeDasharray = dash;
-    el.style.strokeDashoffset = offset;
-    el.style.stroke = getComputedStyle(document.documentElement).getPropertyValue(strokeColorVar).trim();
-  }
-
-  // =========================
-  // RENDER
-  // =========================
-  function render() {
-    $("dayPill").textContent = `Date: ${state.day}`;
-
-    const t = state.totals;
-
-    // Totals in rings
-    $("calNow").textContent = Math.round(t.cal);
-    $("proNow").textContent = fmt1(t.pro);
-    $("fatNow").textContent = fmt1(t.fat);
-    $("fibNow").textContent = fmt1(t.fib);
-
-    // Remaining/needed
-    $("calRem").textContent = Math.max(0, Math.round(GOALS.cal - t.cal));
-    $("proRem").textContent = Math.max(0, Math.round((GOALS.pro - t.pro) * 10) / 10);
-    $("fatRem").textContent = Math.max(0, Math.round((GOALS.fat - t.fat) * 10) / 10);
-    $("fibRem").textContent = Math.max(0, Math.round((GOALS.fib - t.fib) * 10) / 10);
-
-    // Rings (distinct colors)
-    setRing($("ringCal"), t.cal, GOALS.cal, "--calColor");
-    setRing($("ringPro"), t.pro, GOALS.pro, "--proColor");
-    setRing($("ringFat"), t.fat, GOALS.fat, "--fatColor");
-    setRing($("ringFib"), t.fib, GOALS.fib, "--fibColor");
-
-    // Small totals pill in Progress header (not redundant with log now)
-    $("totalsPill").textContent =
-      `${Math.round(t.cal)} cal • ${fmt1(t.pro)}P • ${fmt1(t.fat)}F • ${fmt1(t.fib)} fiber`;
-
-    // Log list (ONLY ONCE, clean list)
-    const logEl = $("log");
-    logEl.innerHTML = "";
-
-    if (!state.log || state.log.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "mutedText";
-      empty.style.padding = "10px 2px";
-      empty.textContent = "No entries yet.";
-      logEl.appendChild(empty);
-      return;
-    }
-
-    // Newest first
-    [...state.log].slice().reverse().forEach(item => {
+    $("log").innerHTML = "";
+    state.log.slice().reverse().forEach((e,i)=>{
       const row = document.createElement("div");
-      row.className = "entry";
-
-      const left = document.createElement("div");
-      left.innerHTML = `
-        <div class="vals">${item.cal} cal • ${item.pro}P • ${item.fat}F • ${item.fib} fiber</div>
-        <div class="meta">${item.time}</div>
+      row.className="entry";
+      row.innerHTML = `
+        <div>${e.cal} cal • ${e.pro}P • ${e.fat}F • ${e.fib} fiber</div>
+        <button class="delBtn">✕</button>
       `;
-
-      const right = document.createElement("div");
-      right.className = "entryActions";
-
-      const del = document.createElement("button");
-      del.className = "delBtn";
-      del.type = "button";
-      del.title = "Delete this entry";
-      del.textContent = "✕";
-      del.addEventListener("click", () => {
-        deleteEntry(item.id);
-      });
-
-      right.appendChild(del);
-
-      row.appendChild(left);
-      row.appendChild(right);
-
-      logEl.appendChild(row);
+      row.querySelector("button").onclick=()=>{
+        state.log.splice(state.log.length-1-i,1);
+        recalc(); save(); render();
+      };
+      $("log").appendChild(row);
     });
   }
 
-  // =========================
-  // LOGIC
-  // =========================
-  function recalcTotalsFromLog(){
-    const totals = { cal: 0, pro: 0, fat: 0, fib: 0 };
-    for (const e of state.log){
-      totals.cal += e.cal;
-      totals.pro += e.pro;
-      totals.fat += e.fat;
-      totals.fib += e.fib;
-    }
-    state.totals = totals;
+  function recalc(){
+    state.totals = {cal:0,pro:0,fat:0,fib:0};
+    state.log.forEach(e=>{
+      state.totals.cal+=e.cal;
+      state.totals.pro+=e.pro;
+      state.totals.fat+=e.fat;
+      state.totals.fib+=e.fib;
+    });
   }
 
-  function addEntry(cal, pro, fat, fib) {
-    const entry = {
-      id: uuid(),
-      cal: Math.round(cal),
-      pro: Math.round(pro * 10) / 10,
-      fat: Math.round(fat * 10) / 10,
-      fib: Math.round(fib * 10) / 10,
-      time: nowTime()
+  $("addBtn").onclick=()=>{
+    const e={
+      cal:+$("inCal").value||0,
+      pro:+$("inPro").value||0,
+      fat:+$("inFat").value||0,
+      fib:+$("inFib").value||0
     };
+    if(!e.cal&&!e.pro&&!e.fat&&!e.fib) return;
+    state.log.push(e);
+    recalc(); save(); render();
+    ["inCal","inPro","inFat","inFib"].forEach(id=>$(id).value="");
+  };
 
-    state.log.push(entry);
-    recalcTotalsFromLog();
-    save();
-    render();
-  }
-
-  function deleteEntry(entryId){
-    state.log = state.log.filter(e => e.id !== entryId);
-    recalcTotalsFromLog();
-    save();
-    render();
-  }
-
-  function resetDay() {
-    state.day = todayKey();
-    state.totals = { cal: 0, pro: 0, fat: 0, fib: 0 };
-    state.log = [];
-    save();
-    render();
-  }
-
-  function clearInputs(){
-    $("inCal").value = "";
-    $("inPro").value = "";
-    $("inFat").value = "";
-    $("inFib").value = "";
-  }
-
-  // =========================
-  // WIRE UP UI
-  // =========================
-  $("addBtn").addEventListener("click", () => {
-    const cal = parseNum($("inCal").value);
-    const pro = parseNum($("inPro").value);
-    const fat = parseNum($("inFat").value);
-    const fib = parseNum($("inFib").value);
-
-    // If all empty/zero, don't add
-    if (cal===0 && pro===0 && fat===0 && fib===0) return;
-
-    addEntry(cal, pro, fat, fib);
-    clearInputs();
-  });
-
-  $("clearBtn").addEventListener("click", () => {
-    clearInputs();
-  });
-
-  $("resetBtn").addEventListener("click", () => {
-    if (confirm("Reset today’s totals and clear the log?")) resetDay();
-  });
-
-  // Theme toggle
-  $("themeSwitch").addEventListener("click", toggleTheme);
-  $("themeSwitch").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleTheme();
+  $("resetBtn").onclick=()=>{
+    if(confirm("Reset the day?")){
+      state={totals:{cal:0,pro:0,fat:0,fib:0},log:[]};
+      save(); render();
     }
-  });
+  };
 
-  // =========================
-  // INIT
-  // =========================
-  loadTheme();
-  load();
-  render();
+  $("saveGoals").onclick=()=>{
+    goals={
+      cal:+$("setCal").value||goals.cal,
+      pro:+$("setPro").value||goals.pro,
+      fat:+$("setFat").value||goals.fat,
+      fib:+$("setFib").value||goals.fib
+    };
+    save(); render();
+    alert("Goals updated!");
+  };
+
+  $("tabMain").onclick=()=>{
+    $("mainView").style.display="block";
+    $("settingsView").style.display="none";
+    $("tabMain").classList.add("active");
+    $("tabSettings").classList.remove("active");
+  };
+
+  $("tabSettings").onclick=()=>{
+    $("mainView").style.display="none";
+    $("settingsView").style.display="block";
+    $("tabSettings").classList.add("active");
+    $("tabMain").classList.remove("active");
+  };
+
+  $("themeSwitch").onclick=()=>{
+    document.body.classList.toggle("light");
+    localStorage.setItem(THEME, document.body.classList.contains("light")?"light":"dark");
+  };
+
+  if(localStorage.getItem(THEME)==="light") document.body.classList.add("light");
+
+  load(); render();
 })();
 </script>
 </body>
