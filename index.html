@@ -7,40 +7,77 @@
   <title>Dom’s Daily Macros</title>
 
   <style>
+    /* =========================
+       THEME TOKENS
+       ========================= */
     :root{
+      /* page */
       --bg0:#0b0d12;
       --bg1:#10131a;
-      --card: rgba(23,26,33,0.88);
+
+      /* surfaces */
+      --panel: rgba(23,26,33,0.88);      /* big cards */
+      --panel2: rgba(0,0,0,0.14);        /* inner tiles */
+      --inputBg: rgba(0,0,0,0.18);
+
+      /* borders/text */
       --border: rgba(255,255,255,0.08);
       --shadow: rgba(0,0,0,0.25);
       --text:#e9ecf1;
       --muted:#aab2c0;
-      --ringTrack:#2a2f3a;
 
+      /* buttons */
+      --btnBg:#202535;
+      --btnText:#ffffff;
+      --btnMutedBg:#141824;
+      --btnMutedText:#e9ecf1;
+      --dangerBg:#2a1420;
+      --dangerText:#e9ecf1;
+
+      /* rings */
+      --ringTrack:#2a2f3a;
       --calColor:#ffb703;
       --proColor:#7ee081;
       --fatColor:#4dabff;
       --fibColor:#b08cff;
 
-      --dangerBg:#2a1420;
-      --btnBg:#202535;
-      --btnMuted:#141824;
+      /* tabs */
+      --tabBg: rgba(0,0,0,0.18);
+      --tabText: var(--text);
+      --tabActiveBg: var(--btnBg);
+      --tabActiveText: #ffffff;
 
-      --circ:289.02652413026095;
+      --circ:289.02652413026095; /* 2πr for r=46 */
     }
 
+    /* LIGHT MODE (match your older “perfect” look) */
     body.light{
       --bg0:#f5f7fb;
       --bg1:#e9eef8;
-      --card: rgba(255,255,255,0.92);
+
+      --panel: rgba(255,255,255,0.92);
+      --panel2: rgba(255,255,255,0.85);
+      --inputBg: rgba(255,255,255,0.92);
+
       --border: rgba(10,18,32,0.10);
       --shadow: rgba(10,18,32,0.12);
       --text:#0c1220;
       --muted:#465063;
-      --ringTrack:#d7deeb;
-      --dangerBg:#ffe7ee;
+
       --btnBg:#0f172a;
-      --btnMuted:#e9eef8;
+      --btnText:#ffffff;
+      --btnMutedBg:#eef2fb;
+      --btnMutedText:#0c1220;
+      --dangerBg:#ffe7ee;
+      --dangerText:#0c1220;
+
+      --ringTrack:#d7deeb;
+
+      /* tabs in light mode: inactive light gray, active dark */
+      --tabBg:#d1d5db;
+      --tabText:#0c1220;
+      --tabActiveBg:#0f172a;
+      --tabActiveText:#ffffff;
     }
 
     *{box-sizing:border-box}
@@ -54,67 +91,98 @@
     .wrap{max-width:980px;margin:0 auto;padding:18px}
 
     .title{
-      font-size:36px;
-      font-weight:900;
-      letter-spacing:-0.02em;
-      margin-bottom:16px;
+      font-size:44px;              /* larger per request */
+      font-weight:950;
+      letter-spacing:-0.03em;
+      line-height:1.05;
+      margin: 6px 0 14px;
     }
 
+    /* Tabs */
     .tabs{
       display:flex;
-      gap:10px;
+      gap:12px;
       margin-bottom:14px;
     }
-
     .tab{
       flex:1;
-      padding:10px;
-      border-radius:12px;
+      padding:12px 14px;
+      border-radius:14px;
       border:1px solid var(--border);
-      background:rgba(0,0,0,0.2);
-      color:var(--text);
-      font-weight:800;
+      background:var(--tabBg);
+      color:var(--tabText);
+      font-weight:900;
       cursor:pointer;
     }
-
     .tab.active{
-      background:var(--btnBg);
+      background:var(--tabActiveBg);
+      color:var(--tabActiveText);
     }
 
+    /* Cards */
     .card{
-      background:var(--card);
+      background:var(--panel);
       border:1px solid var(--border);
       border-radius:18px;
       padding:14px;
       box-shadow:0 10px 30px var(--shadow);
+      backdrop-filter: blur(10px);
       margin-bottom:12px;
     }
 
+    .sectionHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .sectionTitle{
+      font-size:18px;
+      font-weight:950;
+      letter-spacing:-0.02em;
+    }
+
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(0,0,0,0.08);
+    }
+    body.light .pill{ background:rgba(255,255,255,0.75); }
+
+    /* Rings grid */
     .rings{
       display:grid;
       grid-template-columns:repeat(2,1fr);
       gap:12px;
     }
+    @media(min-width:820px){
+      .rings{grid-template-columns:repeat(4,1fr)}
+    }
 
+    /* Ring tiles – this is what was “too gray” in your new light mode.
+       We now use theme surface tokens so light mode stays bright/clean. */
     .ringCard{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:8px;
       padding:14px;
-      background:rgba(0,0,0,0.15);
+      background:var(--panel2);
       border-radius:16px;
       border:1px solid var(--border);
     }
 
-    .ringLabel{font-weight:900;font-size:18px}
+    .ringLabel{font-weight:950;font-size:20px}
 
     .ring{
       width:118px;height:118px;position:relative;
     }
-
     .ring svg{width:118px;height:118px;transform:rotate(-90deg)}
-
     .center{
       position:absolute;
       inset:0;
@@ -122,107 +190,140 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
+      gap:2px;
     }
-
-    .big{font-size:22px;font-weight:900}
+    .big{font-size:24px;font-weight:950}
     .small{font-size:12px;color:var(--muted)}
 
     .track{stroke:var(--ringTrack);stroke-width:10;fill:none}
-    .prog{stroke-width:10;fill:none;stroke-linecap:round;stroke-dasharray:var(--circ);stroke-dashoffset:var(--circ)}
+    .prog{
+      stroke-width:10;
+      fill:none;
+      stroke-linecap:round;
+      stroke-dasharray:var(--circ);
+      stroke-dashoffset:var(--circ);
+    }
+    .ringNums{font-size:13px;color:var(--muted);font-weight:800}
 
-    .ringNums{font-size:13px;color:var(--muted)}
-
+    /* Inputs */
     .formRow{
       display:grid;
       grid-template-columns:repeat(4,1fr);
       gap:10px;
       margin-top:10px;
     }
-
     input{
-      padding:11px;
-      border-radius:12px;
+      padding:12px 12px;
+      border-radius:14px;
       border:1px solid var(--border);
-      background:rgba(0,0,0,0.2);
+      background:var(--inputBg);
       color:var(--text);
+      outline:none;
+      font-weight:800;
     }
+    input::placeholder{color:color-mix(in srgb, var(--muted) 75%, transparent)}
 
+    /* Buttons */
     .btnRow{
       display:flex;
       gap:10px;
-      margin-top:10px;
+      margin-top:12px;
+      flex-wrap:wrap;
     }
-
     button{
-      padding:10px 12px;
-      border-radius:12px;
+      padding:11px 14px;
+      border-radius:14px;
       border:1px solid var(--border);
       background:var(--btnBg);
-      color:#fff;
-      font-weight:800;
+      color:var(--btnText);
+      font-weight:950;
       cursor:pointer;
     }
+    button:active{transform:translateY(1px)}
+    .mutedBtn{
+      background:var(--btnMutedBg);
+      color:var(--btnMutedText);
+    }
+    .danger{
+      background:var(--dangerBg);
+      color:var(--dangerText);
+    }
 
-    .danger{background:var(--dangerBg);color:var(--text)}
-
+    /* Log */
     .log{
       display:flex;
       flex-direction:column;
-      gap:8px;
-      max-height:400px;
+      gap:10px;
+      max-height:520px;
       overflow:auto;
+      padding-right:4px;
     }
-
     .entry{
       display:grid;
       grid-template-columns:1fr auto;
       gap:10px;
-      padding:10px;
-      border-radius:12px;
+      padding:12px 12px;
+      border-radius:16px;
       border:1px solid var(--border);
-      background:rgba(0,0,0,0.15);
+      background:var(--panel2);
+      align-items:center;
     }
+    .entry .vals{font-size:14px;font-weight:950}
+    .entry .meta{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
 
     .delBtn{
-      background:rgba(255,255,255,0.1);
-      border-radius:10px;
-      padding:6px 10px;
+      width:36px;height:36px;
+      border-radius:14px;
       border:1px solid var(--border);
-      font-weight:900;
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      font-weight:950;
       cursor:pointer;
-    }
-
-    .settingsRow{
       display:flex;
-      flex-direction:column;
-      gap:10px;
+      align-items:center;
+      justify-content:center;
     }
+    body.light .delBtn{ background:rgba(10,18,32,0.06); }
 
+    /* Theme switch (Settings) */
+    .toggleRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .toggleLabel{
+      font-weight:950;
+      color:var(--muted);
+    }
     .switch{
-      width:54px;height:32px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.1);
-      border:1px solid var(--border);
       position:relative;
-      cursor:pointer;
-    }
-
-    .knob{
-      width:26px;height:26px;
+      width:58px;height:34px;
       border-radius:999px;
-      background:#fff;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.10);
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+    body.light .switch{ background:rgba(10,18,32,0.06); }
+    .knob{
       position:absolute;
       top:3px;left:3px;
-      transition:0.2s;
+      width:28px;height:28px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.86);
+      transition: transform 160ms ease;
     }
+    body.light .knob{ background:#0f172a; }
+    .switch.on .knob{ transform: translateX(24px); }
 
-    .switch.on .knob{transform:translateX(22px)}
+    .helpText{ color:var(--muted); font-size:12px; font-weight:800; margin-top:6px; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-
     <div class="title">Dom’s Daily Macros</div>
 
     <div class="tabs">
@@ -230,17 +331,21 @@
       <button class="tab" id="tabSettings">Settings</button>
     </div>
 
-    <!-- MAIN TRACKER -->
+    <!-- TRACKER -->
     <div id="mainView">
-
       <div class="card">
+        <div class="sectionHead">
+          <div class="sectionTitle">Progress</div>
+          <div class="pill" id="totalsPill"></div>
+        </div>
+
         <div class="rings">
           <div class="ringCard">
             <div class="ringLabel">Calories</div>
             <div class="ring">
               <svg viewBox="0 0 120 120">
-                <circle class="track" cx="60" cy="60" r="46"/>
-                <circle class="prog" id="ringCal" cx="60" cy="60" r="46"/>
+                <circle class="track" cx="60" cy="60" r="46"></circle>
+                <circle class="prog" id="ringCal" cx="60" cy="60" r="46"></circle>
               </svg>
               <div class="center">
                 <div class="big" id="calNow">0</div>
@@ -254,8 +359,8 @@
             <div class="ringLabel">Protein</div>
             <div class="ring">
               <svg viewBox="0 0 120 120">
-                <circle class="track" cx="60" cy="60" r="46"/>
-                <circle class="prog" id="ringPro" cx="60" cy="60" r="46"/>
+                <circle class="track" cx="60" cy="60" r="46"></circle>
+                <circle class="prog" id="ringPro" cx="60" cy="60" r="46"></circle>
               </svg>
               <div class="center">
                 <div class="big" id="proNow">0</div>
@@ -269,8 +374,8 @@
             <div class="ringLabel">Fat</div>
             <div class="ring">
               <svg viewBox="0 0 120 120">
-                <circle class="track" cx="60" cy="60" r="46"/>
-                <circle class="prog" id="ringFat" cx="60" cy="60" r="46"/>
+                <circle class="track" cx="60" cy="60" r="46"></circle>
+                <circle class="prog" id="ringFat" cx="60" cy="60" r="46"></circle>
               </svg>
               <div class="center">
                 <div class="big" id="fatNow">0</div>
@@ -284,8 +389,8 @@
             <div class="ringLabel">Fiber</div>
             <div class="ring">
               <svg viewBox="0 0 120 120">
-                <circle class="track" cx="60" cy="60" r="46"/>
-                <circle class="prog" id="ringFib" cx="60" cy="60" r="46"/>
+                <circle class="track" cx="60" cy="60" r="46"></circle>
+                <circle class="prog" id="ringFib" cx="60" cy="60" r="46"></circle>
               </svg>
               <div class="center">
                 <div class="big" id="fibNow">0</div>
@@ -298,181 +403,304 @@
       </div>
 
       <div class="card">
-        <div class="formRow">
-          <input id="inCal" placeholder="Calories">
-          <input id="inPro" placeholder="Protein (g)">
-          <input id="inFat" placeholder="Fat (g)">
-          <input id="inFib" placeholder="Fiber (g)">
+        <div class="sectionHead">
+          <div class="sectionTitle">Add Entry</div>
         </div>
+
+        <div class="formRow">
+          <input id="inCal" inputmode="numeric" placeholder="Calories">
+          <input id="inPro" inputmode="numeric" placeholder="Protein (g)">
+          <input id="inFat" inputmode="numeric" placeholder="Fat (g)">
+          <input id="inFib" inputmode="numeric" placeholder="Fiber (g)">
+        </div>
+
         <div class="btnRow">
           <button id="addBtn">Add Entry</button>
+          <button class="mutedBtn" id="clearBtn" type="button">Clear</button>
         </div>
       </div>
 
       <div class="card">
-        <h3>Today’s Log</h3>
+        <div class="sectionHead">
+          <div class="sectionTitle">Today’s Log</div>
+        </div>
         <div class="log" id="log"></div>
       </div>
-
     </div>
 
     <!-- SETTINGS -->
     <div id="settingsView" style="display:none;">
+      <div class="card">
+        <div class="sectionHead">
+          <div class="sectionTitle">Appearance</div>
+        </div>
 
-      <div class="card settingsRow">
-        <h3>Appearance</h3>
-        <div class="switch" id="themeSwitch"><div class="knob"></div></div>
+        <div class="toggleRow">
+          <div class="toggleLabel">Light mode</div>
+          <div class="switch" id="themeSwitch" role="switch" aria-checked="false" tabindex="0">
+            <div class="knob"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="card settingsRow">
-        <h3>Goals</h3>
-        <input id="setCal" placeholder="Calories goal">
-        <input id="setPro" placeholder="Protein goal">
-        <input id="setFat" placeholder="Fat goal">
-        <input id="setFib" placeholder="Fiber goal">
-        <button id="saveGoals">Save Goals</button>
+      <div class="card">
+        <div class="sectionHead">
+          <div class="sectionTitle">Goals</div>
+        </div>
+
+        <div class="formRow" style="margin-top:0;">
+          <input id="setCal" inputmode="numeric" placeholder="Calories goal">
+          <input id="setPro" inputmode="numeric" placeholder="Protein goal (g)">
+          <input id="setFat" inputmode="numeric" placeholder="Fat goal (g)">
+          <input id="setFib" inputmode="numeric" placeholder="Fiber goal (g)">
+        </div>
+
+        <div class="btnRow">
+          <button id="saveGoals">Save Goals</button>
+        </div>
+        <div class="helpText">Tip: set these once, then just use the Tracker tab daily.</div>
       </div>
 
-      <div class="card settingsRow">
-        <h3>Reset</h3>
+      <div class="card">
+        <div class="sectionHead">
+          <div class="sectionTitle">Reset</div>
+        </div>
         <button class="danger" id="resetBtn">Reset Day</button>
       </div>
-
     </div>
-
   </div>
 
 <script>
 (() => {
-  const KEY = "dom_macros_v3";
-  const THEME = "dom_theme";
+  const KEY = "dom_macros_v4";
+  const KEY_THEME = "dom_macros_theme_v4";
 
   let goals = { cal:2000, pro:120, fat:60, fib:30 };
-
   let state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
 
-  const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
   function save(){
     localStorage.setItem(KEY, JSON.stringify({goals, state}));
   }
-
   function load(){
     const raw = localStorage.getItem(KEY);
     if(raw){
-      const data = JSON.parse(raw);
-      goals = data.goals;
-      state = data.state;
+      try{
+        const data = JSON.parse(raw);
+        if (data?.goals) goals = data.goals;
+        if (data?.state) state = data.state;
+      }catch(e){}
     }
   }
 
-  function setRing(el, value, goal, color){
-    const pct = Math.min(value/goal,1);
-    const dash = 289;
+  function setTheme(theme, persist=true){
+    const isLight = theme === "light";
+    document.body.classList.toggle("light", isLight);
+
+    const sw = $("themeSwitch");
+    sw.classList.toggle("on", isLight);
+    sw.setAttribute("aria-checked", String(isLight));
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", isLight ? "#f5f7fb" : "#0b0d12");
+
+    if(persist) localStorage.setItem(KEY_THEME, theme);
+  }
+  function loadTheme(){
+    const t = localStorage.getItem(KEY_THEME) || "dark";
+    setTheme(t, false);
+  }
+  function toggleTheme(){
+    const isLight = document.body.classList.contains("light");
+    setTheme(isLight ? "dark" : "light");
+  }
+
+  function setRing(el, value, goal, colorVar){
+    const pct = goal === 0 ? 0 : Math.min(value / goal, 1);
+    const dash = 289.02652413026095;
+    el.style.strokeDasharray = dash;
     el.style.strokeDashoffset = dash * (1 - pct);
-    el.style.stroke = color;
+    el.style.stroke = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim();
+  }
+
+  function recalc(){
+    const t = {cal:0,pro:0,fat:0,fib:0};
+    state.log.forEach(e=>{
+      t.cal+=e.cal; t.pro+=e.pro; t.fat+=e.fat; t.fib+=e.fib;
+    });
+    state.totals = t;
+  }
+
+  function nowTime(){
+    const d = new Date();
+    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function addEntry(cal, pro, fat, fib){
+    const entry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+      cal: Math.round(cal),
+      pro: Math.round(pro*10)/10,
+      fat: Math.round(fat*10)/10,
+      fib: Math.round(fib*10)/10,
+      time: nowTime()
+    };
+    state.log.push(entry);
+    recalc();
+    save();
+    render();
+  }
+
+  function deleteEntry(id){
+    state.log = state.log.filter(e => e.id !== id);
+    recalc();
+    save();
+    render();
   }
 
   function render(){
-    $("calNow").textContent = state.totals.cal;
-    $("proNow").textContent = state.totals.pro;
-    $("fatNow").textContent = state.totals.fat;
-    $("fibNow").textContent = state.totals.fib;
-
+    // goals labels
     $("calGoal").textContent = goals.cal;
     $("proGoal").textContent = goals.pro;
     $("fatGoal").textContent = goals.fat;
     $("fibGoal").textContent = goals.fib;
 
-    $("calRem").textContent = Math.max(0, goals.cal - state.totals.cal);
-    $("proRem").textContent = Math.max(0, goals.pro - state.totals.pro);
-    $("fatRem").textContent = Math.max(0, goals.fat - state.totals.fat);
-    $("fibRem").textContent = Math.max(0, goals.fib - state.totals.fib);
+    // totals numbers
+    $("calNow").textContent = state.totals.cal;
+    $("proNow").textContent = state.totals.pro;
+    $("fatNow").textContent = state.totals.fat;
+    $("fibNow").textContent = state.totals.fib;
 
-    setRing($("ringCal"), state.totals.cal, goals.cal, "#ffb703");
-    setRing($("ringPro"), state.totals.pro, goals.pro, "#7ee081");
-    setRing($("ringFat"), state.totals.fat, goals.fat, "#4dabff");
-    setRing($("ringFib"), state.totals.fib, goals.fib, "#b08cff");
+    // remaining / needed
+    $("calRem").textContent = Math.max(0, Math.round(goals.cal - state.totals.cal));
+    $("proRem").textContent = Math.max(0, Math.round((goals.pro - state.totals.pro) * 10)/10);
+    $("fatRem").textContent = Math.max(0, Math.round((goals.fat - state.totals.fat) * 10)/10);
+    $("fibRem").textContent = Math.max(0, Math.round((goals.fib - state.totals.fib) * 10)/10);
 
-    $("log").innerHTML = "";
-    state.log.slice().reverse().forEach((e,i)=>{
-      const row = document.createElement("div");
-      row.className="entry";
-      row.innerHTML = `
-        <div>${e.cal} cal • ${e.pro}P • ${e.fat}F • ${e.fib} fiber</div>
-        <button class="delBtn">✕</button>
-      `;
-      row.querySelector("button").onclick=()=>{
-        state.log.splice(state.log.length-1-i,1);
-        recalc(); save(); render();
-      };
-      $("log").appendChild(row);
-    });
-  }
+    // pill summary
+    $("totalsPill").textContent = `${state.totals.cal} cal • ${state.totals.pro}P • ${state.totals.fat}F • ${state.totals.fib} fiber`;
 
-  function recalc(){
-    state.totals = {cal:0,pro:0,fat:0,fib:0};
-    state.log.forEach(e=>{
-      state.totals.cal+=e.cal;
-      state.totals.pro+=e.pro;
-      state.totals.fat+=e.fat;
-      state.totals.fib+=e.fib;
-    });
-  }
+    // rings
+    setRing($("ringCal"), state.totals.cal, goals.cal, "--calColor");
+    setRing($("ringPro"), state.totals.pro, goals.pro, "--proColor");
+    setRing($("ringFat"), state.totals.fat, goals.fat, "--fatColor");
+    setRing($("ringFib"), state.totals.fib, goals.fib, "--fibColor");
 
-  $("addBtn").onclick=()=>{
-    const e={
-      cal:+$("inCal").value||0,
-      pro:+$("inPro").value||0,
-      fat:+$("inFat").value||0,
-      fib:+$("inFib").value||0
-    };
-    if(!e.cal&&!e.pro&&!e.fat&&!e.fib) return;
-    state.log.push(e);
-    recalc(); save(); render();
-    ["inCal","inPro","inFat","inFib"].forEach(id=>$(id).value="");
-  };
+    // settings inputs prefill (nice UX)
+    $("setCal").value = goals.cal;
+    $("setPro").value = goals.pro;
+    $("setFat").value = goals.fat;
+    $("setFib").value = goals.fib;
 
-  $("resetBtn").onclick=()=>{
-    if(confirm("Reset the day?")){
-      state={totals:{cal:0,pro:0,fat:0,fib:0},log:[]};
-      save(); render();
+    // log
+    const logEl = $("log");
+    logEl.innerHTML = "";
+    if (!state.log.length){
+      const empty = document.createElement("div");
+      empty.className = "helpText";
+      empty.textContent = "No entries yet.";
+      logEl.appendChild(empty);
+      return;
     }
+    [...state.log].slice().reverse().forEach(e=>{
+      const row = document.createElement("div");
+      row.className = "entry";
+
+      const left = document.createElement("div");
+      left.innerHTML = `
+        <div class="vals">${e.cal} cal • ${e.pro}P • ${e.fat}F • ${e.fib} fiber</div>
+        <div class="meta">${e.time}</div>
+      `;
+
+      const del = document.createElement("button");
+      del.className = "delBtn";
+      del.type = "button";
+      del.textContent = "✕";
+      del.title = "Delete entry";
+      del.onclick = () => deleteEntry(e.id);
+
+      row.appendChild(left);
+      row.appendChild(del);
+      logEl.appendChild(row);
+    });
+  }
+
+  // Tabs
+  function showMain(){
+    $("mainView").style.display = "block";
+    $("settingsView").style.display = "none";
+    $("tabMain").classList.add("active");
+    $("tabSettings").classList.remove("active");
+    window.scrollTo(0,0);
+  }
+  function showSettings(){
+    $("mainView").style.display = "none";
+    $("settingsView").style.display = "block";
+    $("tabSettings").classList.add("active");
+    $("tabMain").classList.remove("active");
+    window.scrollTo(0,0);
+  }
+
+  // Wire UI
+  $("tabMain").onclick = showMain;
+  $("tabSettings").onclick = showSettings;
+
+  $("addBtn").onclick = () => {
+    const cal = Number($("inCal").value) || 0;
+    const pro = Number($("inPro").value) || 0;
+    const fat = Number($("inFat").value) || 0;
+    const fib = Number($("inFib").value) || 0;
+    if(!cal && !pro && !fat && !fib) return;
+    addEntry(cal, pro, fat, fib);
+    $("inCal").value = "";
+    $("inPro").value = "";
+    $("inFat").value = "";
+    $("inFib").value = "";
   };
 
-  $("saveGoals").onclick=()=>{
-    goals={
-      cal:+$("setCal").value||goals.cal,
-      pro:+$("setPro").value||goals.pro,
-      fat:+$("setFat").value||goals.fat,
-      fib:+$("setFib").value||goals.fib
+  $("clearBtn").onclick = () => {
+    $("inCal").value = "";
+    $("inPro").value = "";
+    $("inFat").value = "";
+    $("inFib").value = "";
+  };
+
+  $("saveGoals").onclick = () => {
+    const newGoals = {
+      cal: Number($("setCal").value) || goals.cal,
+      pro: Number($("setPro").value) || goals.pro,
+      fat: Number($("setFat").value) || goals.fat,
+      fib: Number($("setFib").value) || goals.fib
     };
-    save(); render();
+    goals = newGoals;
+    save();
+    render();
     alert("Goals updated!");
   };
 
-  $("tabMain").onclick=()=>{
-    $("mainView").style.display="block";
-    $("settingsView").style.display="none";
-    $("tabMain").classList.add("active");
-    $("tabSettings").classList.remove("active");
+  $("resetBtn").onclick = () => {
+    if(confirm("Reset today’s totals and clear the log?")){
+      state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
+      save();
+      render();
+      showMain();
+    }
   };
 
-  $("tabSettings").onclick=()=>{
-    $("mainView").style.display="none";
-    $("settingsView").style.display="block";
-    $("tabSettings").classList.add("active");
-    $("tabMain").classList.remove("active");
-  };
+  $("themeSwitch").onclick = toggleTheme;
+  $("themeSwitch").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      toggleTheme();
+    }
+  });
 
-  $("themeSwitch").onclick=()=>{
-    document.body.classList.toggle("light");
-    localStorage.setItem(THEME, document.body.classList.contains("light")?"light":"dark");
-  };
-
-  if(localStorage.getItem(THEME)==="light") document.body.classList.add("light");
-
-  load(); render();
+  // Init
+  loadTheme();
+  load();
+  recalc();
+  render();
 })();
 </script>
 </body>
