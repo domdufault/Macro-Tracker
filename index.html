@@ -41,23 +41,22 @@
       --fatColor:#4dabff;
       --fibColor:#b08cff;
 
-      /* tabs */
-      --tabBg: rgba(0,0,0,0.18);
-      --tabText: var(--text);
-      --tabActiveBg: var(--btnBg);
-      --tabActiveText: #ffffff;
+      /* gear / icon button */
+      --iconBg: rgba(0,0,0,0.20);
+      --iconBgHover: rgba(0,0,0,0.28);
+      --iconText: var(--text);
 
       --circ:289.02652413026095; /* 2πr for r=46 */
     }
 
-    /* LIGHT MODE (match your older “perfect” look) */
+    /* LIGHT MODE (match your “perfect” light vibe) */
     body.light{
       --bg0:#f5f7fb;
       --bg1:#e9eef8;
 
       --panel: rgba(255,255,255,0.92);
-      --panel2: rgba(255,255,255,0.85);
-      --inputBg: rgba(255,255,255,0.92);
+      --panel2: rgba(255,255,255,0.88);
+      --inputBg: rgba(255,255,255,0.95);
 
       --border: rgba(10,18,32,0.10);
       --shadow: rgba(10,18,32,0.12);
@@ -73,11 +72,9 @@
 
       --ringTrack:#d7deeb;
 
-      /* tabs in light mode: inactive light gray, active dark */
-      --tabBg:#d1d5db;
-      --tabText:#0c1220;
-      --tabActiveBg:#0f172a;
-      --tabActiveText:#ffffff;
+      --iconBg: rgba(10,18,32,0.06);
+      --iconBgHover: rgba(10,18,32,0.10);
+      --iconText:#0c1220;
     }
 
     *{box-sizing:border-box}
@@ -88,35 +85,48 @@
       color:var(--text);
     }
 
-    .wrap{max-width:980px;margin:0 auto;padding:18px}
+    .wrap{max-width:980px;margin:0 auto;padding:18px; position:relative;}
 
-    .title{
-      font-size:44px;              /* larger per request */
-      font-weight:950;
-      letter-spacing:-0.03em;
-      line-height:1.05;
+    /* Header */
+    .headerRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
       margin: 6px 0 14px;
     }
 
-    /* Tabs */
-    .tabs{
-      display:flex;
-      gap:12px;
-      margin-bottom:14px;
+    .title{
+      font-size:44px;
+      font-weight:950;
+      letter-spacing:-0.03em;
+      line-height:1.05;
+      margin:0;
     }
-    .tab{
-      flex:1;
-      padding:12px 14px;
+
+    .iconBtn{
+      width:46px;
+      height:46px;
       border-radius:14px;
       border:1px solid var(--border);
-      background:var(--tabBg);
-      color:var(--tabText);
-      font-weight:900;
+      background:var(--iconBg);
+      color:var(--iconText);
       cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      box-shadow:0 8px 18px var(--shadow);
+      flex:0 0 auto;
     }
-    .tab.active{
-      background:var(--tabActiveBg);
-      color:var(--tabActiveText);
+    .iconBtn:active{ transform: translateY(1px); }
+    .iconBtn:hover{ background:var(--iconBgHover); }
+
+    .iconBtn svg{
+      width:22px;
+      height:22px;
+      display:block;
+      fill: currentColor;
     }
 
     /* Cards */
@@ -144,16 +154,6 @@
       letter-spacing:-0.02em;
     }
 
-    .pill{
-      font-size:12px;
-      color:var(--muted);
-      border:1px solid var(--border);
-      padding:7px 10px;
-      border-radius:999px;
-      background:rgba(0,0,0,0.08);
-    }
-    body.light .pill{ background:rgba(255,255,255,0.75); }
-
     /* Rings grid */
     .rings{
       display:grid;
@@ -164,8 +164,6 @@
       .rings{grid-template-columns:repeat(4,1fr)}
     }
 
-    /* Ring tiles – this is what was “too gray” in your new light mode.
-       We now use theme surface tokens so light mode stays bright/clean. */
     .ringCard{
       display:flex;
       flex-direction:column;
@@ -230,7 +228,7 @@
       margin-top:12px;
       flex-wrap:wrap;
     }
-    button{
+    button.primary{
       padding:11px 14px;
       border-radius:14px;
       border:1px solid var(--border);
@@ -239,14 +237,24 @@
       font-weight:950;
       cursor:pointer;
     }
-    button:active{transform:translateY(1px)}
-    .mutedBtn{
+    button.primary:active{transform:translateY(1px)}
+    button.mutedBtn{
+      padding:11px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
       background:var(--btnMutedBg);
       color:var(--btnMutedText);
+      font-weight:950;
+      cursor:pointer;
     }
-    .danger{
+    button.danger{
+      padding:11px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
       background:var(--dangerBg);
       color:var(--dangerText);
+      font-weight:950;
+      cursor:pointer;
     }
 
     /* Log */
@@ -285,7 +293,7 @@
     }
     body.light .delBtn{ background:rgba(10,18,32,0.06); }
 
-    /* Theme switch (Settings) */
+    /* Settings switch */
     .toggleRow{
       display:flex;
       align-items:center;
@@ -319,26 +327,30 @@
     .switch.on .knob{ transform: translateX(24px); }
 
     .helpText{ color:var(--muted); font-size:12px; font-weight:800; margin-top:6px; }
+
+    /* Utility */
+    .hidden{display:none !important;}
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="title">Dom’s Daily Macros</div>
+    <div class="headerRow">
+      <h1 class="title">Dom’s Daily Macros</h1>
 
-    <div class="tabs">
-      <button class="tab active" id="tabMain">Tracker</button>
-      <button class="tab" id="tabSettings">Settings</button>
+      <!-- Gear button toggles Settings -->
+      <button class="iconBtn" id="openSettings" aria-label="Open settings" title="Settings" type="button">
+        <!-- gear icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 11.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L.71 7.08a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.49.42h3.8c.24 0 .45-.18.49-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM10 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
+        </svg>
+      </button>
     </div>
 
     <!-- TRACKER -->
     <div id="mainView">
       <div class="card">
-        <div class="sectionHead">
-          <div class="sectionTitle">Progress</div>
-          <div class="pill" id="totalsPill"></div>
-        </div>
-
+        <!-- No "Progress" label, no totals pill (per request) -->
         <div class="rings">
           <div class="ringCard">
             <div class="ringLabel">Calories</div>
@@ -415,7 +427,7 @@
         </div>
 
         <div class="btnRow">
-          <button id="addBtn">Add Entry</button>
+          <button class="primary" id="addBtn" type="button">Add Entry</button>
           <button class="mutedBtn" id="clearBtn" type="button">Clear</button>
         </div>
       </div>
@@ -429,7 +441,16 @@
     </div>
 
     <!-- SETTINGS -->
-    <div id="settingsView" style="display:none;">
+    <div id="settingsView" class="hidden">
+      <div class="card">
+        <div class="sectionHead">
+          <div class="sectionTitle">Settings</div>
+
+          <!-- "Done" button to return to tracker -->
+          <button class="mutedBtn" id="closeSettings" type="button">Done</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="sectionHead">
           <div class="sectionTitle">Appearance</div>
@@ -456,24 +477,24 @@
         </div>
 
         <div class="btnRow">
-          <button id="saveGoals">Save Goals</button>
+          <button class="primary" id="saveGoals" type="button">Save Goals</button>
         </div>
-        <div class="helpText">Tip: set these once, then just use the Tracker tab daily.</div>
+        <div class="helpText">Set these once, then use the tracker daily.</div>
       </div>
 
       <div class="card">
         <div class="sectionHead">
           <div class="sectionTitle">Reset</div>
         </div>
-        <button class="danger" id="resetBtn">Reset Day</button>
+        <button class="danger" id="resetBtn" type="button">Reset Day</button>
       </div>
     </div>
   </div>
 
 <script>
 (() => {
-  const KEY = "dom_macros_v4";
-  const KEY_THEME = "dom_macros_theme_v4";
+  const KEY = "dom_macros_v5";
+  const KEY_THEME = "dom_macros_theme_v5";
 
   let goals = { cal:2000, pro:120, fat:60, fib:30 };
   let state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
@@ -578,16 +599,13 @@
     $("fatRem").textContent = Math.max(0, Math.round((goals.fat - state.totals.fat) * 10)/10);
     $("fibRem").textContent = Math.max(0, Math.round((goals.fib - state.totals.fib) * 10)/10);
 
-    // pill summary
-    $("totalsPill").textContent = `${state.totals.cal} cal • ${state.totals.pro}P • ${state.totals.fat}F • ${state.totals.fib} fiber`;
-
-    // rings
+    // rings (distinct colors)
     setRing($("ringCal"), state.totals.cal, goals.cal, "--calColor");
     setRing($("ringPro"), state.totals.pro, goals.pro, "--proColor");
     setRing($("ringFat"), state.totals.fat, goals.fat, "--fatColor");
     setRing($("ringFib"), state.totals.fib, goals.fib, "--fibColor");
 
-    // settings inputs prefill (nice UX)
+    // settings inputs prefill
     $("setCal").value = goals.cal;
     $("setPro").value = goals.pro;
     $("setFat").value = goals.fat;
@@ -626,25 +644,21 @@
     });
   }
 
-  // Tabs
-  function showMain(){
-    $("mainView").style.display = "block";
-    $("settingsView").style.display = "none";
-    $("tabMain").classList.add("active");
-    $("tabSettings").classList.remove("active");
+  // Views
+  function showTracker(){
+    $("mainView").classList.remove("hidden");
+    $("settingsView").classList.add("hidden");
     window.scrollTo(0,0);
   }
   function showSettings(){
-    $("mainView").style.display = "none";
-    $("settingsView").style.display = "block";
-    $("tabSettings").classList.add("active");
-    $("tabMain").classList.remove("active");
+    $("mainView").classList.add("hidden");
+    $("settingsView").classList.remove("hidden");
     window.scrollTo(0,0);
   }
 
   // Wire UI
-  $("tabMain").onclick = showMain;
-  $("tabSettings").onclick = showSettings;
+  $("openSettings").onclick = showSettings;
+  $("closeSettings").onclick = showTracker;
 
   $("addBtn").onclick = () => {
     const cal = Number($("inCal").value) || 0;
@@ -684,7 +698,7 @@
       state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
       save();
       render();
-      showMain();
+      showTracker();
     }
   };
 
@@ -701,6 +715,7 @@
   load();
   recalc();
   render();
+  showTracker();
 })();
 </script>
 </body>
