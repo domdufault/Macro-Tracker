@@ -94,8 +94,7 @@
     }
 
     .iconBtn{
-      width:46px;
-      height:46px;
+      width:46px;height:46px;
       border-radius:14px;
       border:1px solid var(--border);
       background:var(--iconBg);
@@ -174,7 +173,7 @@
     }
     .ringNums{font-size:13px;color:var(--muted);font-weight:800}
 
-    /* ✅ FIX: Add Entry inputs are 2x2 on phones, 4 across on larger screens */
+    /* Add Entry: 2x2 on phones, 4 across on larger screens */
     .formRow{
       display:grid;
       gap:10px;
@@ -299,6 +298,25 @@
 
     .helpText{ color:var(--muted); font-size:12px; font-weight:800; margin-top:6px; }
     .hidden{display:none !important;}
+
+    .statusPill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.08);
+      font-size:12px;
+      font-weight:900;
+      color:var(--muted);
+    }
+    body.light .statusPill{ background:rgba(255,255,255,0.75); }
+    .dot{
+      width:9px;height:9px;border-radius:999px;
+      background: #f59e0b;
+    }
+    .dot.ok{ background:#22c55e; }
   </style>
 </head>
 
@@ -411,8 +429,35 @@
       <div class="card">
         <div class="sectionHead">
           <div class="sectionTitle">Settings</div>
-          <button class="mutedBtn" id="closeSettings" type="button">Done</button>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div class="statusPill" id="syncStatus">
+              <span class="dot" id="syncDot"></span>
+              <span id="syncText">Not signed in</span>
+            </div>
+            <button class="mutedBtn" id="closeSettings" type="button">Done</button>
+          </div>
         </div>
+        <div class="helpText">To sync iPhone + iPad automatically, sign in on both devices with the same email/password.</div>
+      </div>
+
+      <div class="card">
+        <div class="sectionHead">
+          <div class="sectionTitle">Cloud Sync</div>
+        </div>
+
+        <div class="formRow" style="margin-top:0;">
+          <input id="authEmail" inputmode="email" placeholder="Email">
+          <input id="authPass" type="password" placeholder="Password">
+          <div style="grid-column:1 / -1;">
+            <div class="btnRow" style="margin-top:0;">
+              <button class="primary" id="signUpBtn" type="button">Create Account</button>
+              <button class="primary" id="signInBtn" type="button">Sign In</button>
+              <button class="mutedBtn" id="signOutBtn" type="button">Sign Out</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="helpText">Once signed in, your log + goals sync automatically between devices.</div>
       </div>
 
       <div class="card">
@@ -455,224 +500,383 @@
     </div>
   </div>
 
-<script>
-(() => {
-  const KEY = "dom_macros_v6";
-  const KEY_THEME = "dom_macros_theme_v6";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  let goals = { cal:2000, pro:120, fat:60, fib:30 };
-  let state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
-
-  const $ = (id) => document.getElementById(id);
-
-  function save(){
-    localStorage.setItem(KEY, JSON.stringify({goals, state}));
-  }
-  function load(){
-    const raw = localStorage.getItem(KEY);
-    if(raw){
-      try{
-        const data = JSON.parse(raw);
-        if (data?.goals) goals = data.goals;
-        if (data?.state) state = data.state;
-      }catch(e){}
-    }
-  }
-
-  function setTheme(theme, persist=true){
-    const isLight = theme === "light";
-    document.body.classList.toggle("light", isLight);
-
-    const sw = $("themeSwitch");
-    if (sw){
-      sw.classList.toggle("on", isLight);
-      sw.setAttribute("aria-checked", String(isLight));
-    }
-
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", isLight ? "#f5f7fb" : "#0b0d12");
-
-    if(persist) localStorage.setItem(KEY_THEME, theme);
-  }
-  function loadTheme(){
-    const t = localStorage.getItem(KEY_THEME) || "dark";
-    setTheme(t, false);
-  }
-  function toggleTheme(){
-    const isLight = document.body.classList.contains("light");
-    setTheme(isLight ? "dark" : "light");
-  }
-
-  function setRing(el, value, goal, colorVar){
-    const pct = goal === 0 ? 0 : Math.min(value / goal, 1);
-    const dash = 289.02652413026095;
-    el.style.strokeDasharray = dash;
-    el.style.strokeDashoffset = dash * (1 - pct);
-    el.style.stroke = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim();
-  }
-
-  function recalc(){
-    const t = {cal:0,pro:0,fat:0,fib:0};
-    state.log.forEach(e=>{
-      t.cal+=e.cal; t.pro+=e.pro; t.fat+=e.fat; t.fib+=e.fib;
-    });
-    state.totals = t;
-  }
-
-  function nowTime(){
-    const d = new Date();
-    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  }
-
-  function addEntry(cal, pro, fat, fib){
-    const entry = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
-      cal: Math.round(cal),
-      pro: Math.round(pro*10)/10,
-      fat: Math.round(fat*10)/10,
-      fib: Math.round(fib*10)/10,
-      time: nowTime()
+    // ✅ FROM YOUR SCREENSHOT
+    const firebaseConfig = {
+      apiKey: "AIzaSyD0Q8X6uFwvGg5ldipbj4fudrILbjXMcP0",
+      authDomain: "dom-macros.firebaseapp.com",
+      projectId: "dom-macros",
+      storageBucket: "dom-macros.firebasestorage.app",
+      messagingSenderId: "474678978002",
+      appId: "1:474678978002:web:d85105dfc88ab3cb78140b",
+      measurementId: "G-5MQXX0QJM0"
     };
-    state.log.push(entry);
-    recalc();
-    save();
-    render();
-  }
 
-  function deleteEntry(id){
-    state.log = state.log.filter(e => e.id !== id);
-    recalc();
-    save();
-    render();
-  }
+    const hasConfig = firebaseConfig && firebaseConfig.projectId;
 
-  function render(){
-    $("calGoal").textContent = goals.cal;
-    $("proGoal").textContent = goals.pro;
-    $("fatGoal").textContent = goals.fat;
-    $("fibGoal").textContent = goals.fib;
+    const KEY_LOCAL = "dom_macros_local_v1";
+    const KEY_THEME = "dom_macros_theme_v6";
 
-    $("calNow").textContent = state.totals.cal;
-    $("proNow").textContent = state.totals.pro;
-    $("fatNow").textContent = state.totals.fat;
-    $("fibNow").textContent = state.totals.fib;
+    let goals = { cal:2000, pro:120, fat:60, fib:30 };
+    let state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
 
-    $("calRem").textContent = Math.max(0, Math.round(goals.cal - state.totals.cal));
-    $("proRem").textContent = Math.max(0, Math.round((goals.pro - state.totals.pro) * 10)/10);
-    $("fatRem").textContent = Math.max(0, Math.round((goals.fat - state.totals.fat) * 10)/10);
-    $("fibRem").textContent = Math.max(0, Math.round((goals.fib - state.totals.fib) * 10)/10);
+    const $ = (id) => document.getElementById(id);
 
-    setRing($("ringCal"), state.totals.cal, goals.cal, "--calColor");
-    setRing($("ringPro"), state.totals.pro, goals.pro, "--proColor");
-    setRing($("ringFat"), state.totals.fat, goals.fat, "--fatColor");
-    setRing($("ringFib"), state.totals.fib, goals.fib, "--fibColor");
+    let app = null, auth = null, db = null;
+    let unsubSnap = null;
+    let currentUid = null;
+    let suppressRemoteApply = false;
 
-    $("setCal").value = goals.cal;
-    $("setPro").value = goals.pro;
-    $("setFat").value = goals.fat;
-    $("setFib").value = goals.fib;
-
-    const logEl = $("log");
-    logEl.innerHTML = "";
-    if (!state.log.length){
-      const empty = document.createElement("div");
-      empty.className = "helpText";
-      empty.textContent = "No entries yet.";
-      logEl.appendChild(empty);
-      return;
+    function saveLocal(){
+      localStorage.setItem(KEY_LOCAL, JSON.stringify({goals, state}));
     }
-    [...state.log].slice().reverse().forEach(e=>{
-      const row = document.createElement("div");
-      row.className = "entry";
+    function loadLocal(){
+      const raw = localStorage.getItem(KEY_LOCAL);
+      if(raw){
+        try{
+          const data = JSON.parse(raw);
+          if (data?.goals) goals = data.goals;
+          if (data?.state) state = data.state;
+        }catch(e){}
+      }
+    }
 
-      const left = document.createElement("div");
-      left.innerHTML = `
-        <div class="vals">${e.cal} cal • ${e.pro}P • ${e.fat}F • ${e.fib} fiber</div>
-        <div class="meta">${e.time}</div>
-      `;
+    function setTheme(theme, persist=true){
+      const isLight = theme === "light";
+      document.body.classList.toggle("light", isLight);
 
-      const del = document.createElement("button");
-      del.className = "delBtn";
-      del.type = "button";
-      del.textContent = "✕";
-      del.title = "Delete entry";
-      del.onclick = () => deleteEntry(e.id);
+      const sw = $("themeSwitch");
+      if (sw){
+        sw.classList.toggle("on", isLight);
+        sw.setAttribute("aria-checked", String(isLight));
+      }
 
-      row.appendChild(left);
-      row.appendChild(del);
-      logEl.appendChild(row);
-    });
-  }
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", isLight ? "#f5f7fb" : "#0b0d12");
 
-  function showTracker(){
-    $("mainView").classList.remove("hidden");
-    $("settingsView").classList.add("hidden");
-    window.scrollTo(0,0);
-  }
-  function showSettings(){
-    $("mainView").classList.add("hidden");
-    $("settingsView").classList.remove("hidden");
-    window.scrollTo(0,0);
-  }
+      if(persist) localStorage.setItem(KEY_THEME, theme);
+    }
+    function loadTheme(){
+      const t = localStorage.getItem(KEY_THEME) || "dark";
+      setTheme(t, false);
+    }
+    function toggleTheme(){
+      const isLight = document.body.classList.contains("light");
+      setTheme(isLight ? "dark" : "light");
+      pushRemote();
+    }
 
-  $("openSettings").onclick = showSettings;
-  $("closeSettings").onclick = showTracker;
+    function setRing(el, value, goal, colorVar){
+      const pct = goal === 0 ? 0 : Math.min(value / goal, 1);
+      const dash = 289.02652413026095;
+      el.style.strokeDasharray = dash;
+      el.style.strokeDashoffset = dash * (1 - pct);
+      el.style.stroke = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim();
+    }
 
-  $("addBtn").onclick = () => {
-    const cal = Number($("inCal").value) || 0;
-    const pro = Number($("inPro").value) || 0;
-    const fat = Number($("inFat").value) || 0;
-    const fib = Number($("inFib").value) || 0;
-    if(!cal && !pro && !fat && !fib) return;
-    addEntry(cal, pro, fat, fib);
-    $("inCal").value = "";
-    $("inPro").value = "";
-    $("inFat").value = "";
-    $("inFib").value = "";
-  };
+    function recalc(){
+      const t = {cal:0,pro:0,fat:0,fib:0};
+      state.log.forEach(e=>{
+        t.cal+=e.cal; t.pro+=e.pro; t.fat+=e.fat; t.fib+=e.fib;
+      });
+      state.totals = t;
+    }
 
-  $("clearBtn").onclick = () => {
-    $("inCal").value = "";
-    $("inPro").value = "";
-    $("inFat").value = "";
-    $("inFib").value = "";
-  };
+    function nowTime(){
+      const d = new Date();
+      return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
 
-  $("saveGoals").onclick = () => {
-    goals = {
-      cal: Number($("setCal").value) || goals.cal,
-      pro: Number($("setPro").value) || goals.pro,
-      fat: Number($("setFat").value) || goals.fat,
-      fib: Number($("setFib").value) || goals.fib
-    };
-    save();
-    render();
-    alert("Goals updated!");
-  };
-
-  $("resetBtn").onclick = () => {
-    if(confirm("Reset today’s totals and clear the log?")){
-      state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
-      save();
+    function addEntry(cal, pro, fat, fib){
+      const entry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+        cal: Math.round(cal),
+        pro: Math.round(pro*10)/10,
+        fat: Math.round(fat*10)/10,
+        fib: Math.round(fib*10)/10,
+        time: nowTime()
+      };
+      state.log.push(entry);
+      recalc();
+      saveLocal();
       render();
-      showTracker();
+      pushRemote();
     }
-  };
 
-  $("themeSwitch").onclick = toggleTheme;
-  $("themeSwitch").addEventListener("keydown", (e)=>{
-    if(e.key === "Enter" || e.key === " "){
-      e.preventDefault();
-      toggleTheme();
+    function deleteEntry(id){
+      state.log = state.log.filter(e => e.id !== id);
+      recalc();
+      saveLocal();
+      render();
+      pushRemote();
     }
-  });
 
-  loadTheme();
-  load();
-  recalc();
-  render();
-  showTracker();
-})();
-</script>
+    function render(){
+      $("calGoal").textContent = goals.cal;
+      $("proGoal").textContent = goals.pro;
+      $("fatGoal").textContent = goals.fat;
+      $("fibGoal").textContent = goals.fib;
+
+      $("calNow").textContent = state.totals.cal;
+      $("proNow").textContent = state.totals.pro;
+      $("fatNow").textContent = state.totals.fat;
+      $("fibNow").textContent = state.totals.fib;
+
+      $("calRem").textContent = Math.max(0, Math.round(goals.cal - state.totals.cal));
+      $("proRem").textContent = Math.max(0, Math.round((goals.pro - state.totals.pro) * 10)/10);
+      $("fatRem").textContent = Math.max(0, Math.round((goals.fat - state.totals.fat) * 10)/10);
+      $("fibRem").textContent = Math.max(0, Math.round((goals.fib - state.totals.fib) * 10)/10);
+
+      setRing($("ringCal"), state.totals.cal, goals.cal, "--calColor");
+      setRing($("ringPro"), state.totals.pro, goals.pro, "--proColor");
+      setRing($("ringFat"), state.totals.fat, goals.fat, "--fatColor");
+      setRing($("ringFib"), state.totals.fib, goals.fib, "--fibColor");
+
+      $("setCal").value = goals.cal;
+      $("setPro").value = goals.pro;
+      $("setFat").value = goals.fat;
+      $("setFib").value = goals.fib;
+
+      const logEl = $("log");
+      logEl.innerHTML = "";
+      if (!state.log.length){
+        const empty = document.createElement("div");
+        empty.className = "helpText";
+        empty.textContent = "No entries yet.";
+        logEl.appendChild(empty);
+        return;
+      }
+      [...state.log].slice().reverse().forEach(e=>{
+        const row = document.createElement("div");
+        row.className = "entry";
+
+        const left = document.createElement("div");
+        left.innerHTML = `
+          <div class="vals">${e.cal} cal • ${e.pro}P • ${e.fat}F • ${e.fib} fiber</div>
+          <div class="meta">${e.time}</div>
+        `;
+
+        const del = document.createElement("button");
+        del.className = "delBtn";
+        del.type = "button";
+        del.textContent = "✕";
+        del.title = "Delete entry";
+        del.onclick = () => deleteEntry(e.id);
+
+        row.appendChild(left);
+        row.appendChild(del);
+        logEl.appendChild(row);
+      });
+    }
+
+    function showTracker(){
+      $("mainView").classList.remove("hidden");
+      $("settingsView").classList.add("hidden");
+      window.scrollTo(0,0);
+    }
+    function showSettings(){
+      $("mainView").classList.add("hidden");
+      $("settingsView").classList.remove("hidden");
+      window.scrollTo(0,0);
+    }
+
+    function setSyncStatus(text, ok=false){
+      $("syncText").textContent = text;
+      $("syncDot").classList.toggle("ok", ok);
+    }
+
+    function userDocRef(uid){
+      return doc(db, "users", uid);
+    }
+
+    async function pushRemote(){
+      if(!hasConfig) return;
+      if(!db || !currentUid) return;
+      if(suppressRemoteApply) return;
+
+      const theme = document.body.classList.contains("light") ? "light" : "dark";
+
+      try{
+        await setDoc(userDocRef(currentUid), {
+          goals,
+          state,
+          theme,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        setSyncStatus("Synced", true);
+      }catch(e){
+        setSyncStatus("Sync error", false);
+      }
+    }
+
+    function startRealtimeSync(uid){
+      if(!hasConfig) return;
+      if(unsubSnap) unsubSnap();
+
+      const ref = userDocRef(uid);
+      unsubSnap = onSnapshot(ref, (snap) => {
+        if(!snap.exists()){
+          pushRemote();
+          return;
+        }
+        const data = snap.data() || {};
+
+        suppressRemoteApply = true;
+        try{
+          if(data.goals) goals = data.goals;
+          if(data.state) state = data.state;
+
+          if(data.theme === "light" || data.theme === "dark"){
+            setTheme(data.theme, true);
+          }
+
+          recalc();
+          saveLocal();
+          render();
+          setSyncStatus("Synced", true);
+        } finally {
+          setTimeout(()=>{ suppressRemoteApply = false; }, 150);
+        }
+      }, () => {
+        setSyncStatus("Sync error", false);
+      });
+    }
+
+    function initFirebase(){
+      if(!hasConfig){
+        setSyncStatus("Paste Firebase config", false);
+        return;
+      }
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+
+      onAuthStateChanged(auth, async (user) => {
+        if(user){
+          currentUid = user.uid;
+          setSyncStatus("Signed in • syncing", true);
+          startRealtimeSync(user.uid);
+
+          try{
+            const snap = await getDoc(userDocRef(user.uid));
+            if(!snap.exists()){
+              await pushRemote();
+            }
+          }catch(e){}
+        } else {
+          currentUid = null;
+          if(unsubSnap){ unsubSnap(); unsubSnap = null; }
+          setSyncStatus("Not signed in", false);
+        }
+      });
+    }
+
+    $("openSettings").onclick = showSettings;
+    $("closeSettings").onclick = showTracker;
+
+    $("addBtn").onclick = () => {
+      const cal = Number($("inCal").value) || 0;
+      const pro = Number($("inPro").value) || 0;
+      const fat = Number($("inFat").value) || 0;
+      const fib = Number($("inFib").value) || 0;
+      if(!cal && !pro && !fat && !fib) return;
+      addEntry(cal, pro, fat, fib);
+      $("inCal").value = "";
+      $("inPro").value = "";
+      $("inFat").value = "";
+      $("inFib").value = "";
+    };
+
+    $("clearBtn").onclick = () => {
+      $("inCal").value = "";
+      $("inPro").value = "";
+      $("inFat").value = "";
+      $("inFib").value = "";
+    };
+
+    $("saveGoals").onclick = () => {
+      goals = {
+        cal: Number($("setCal").value) || goals.cal,
+        pro: Number($("setPro").value) || goals.pro,
+        fat: Number($("setFat").value) || goals.fat,
+        fib: Number($("setFib").value) || goals.fib
+      };
+      recalc();
+      saveLocal();
+      render();
+      pushRemote();
+      alert("Goals updated!");
+    };
+
+    $("resetBtn").onclick = () => {
+      if(confirm("Reset today’s totals and clear the log?")){
+        state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
+        recalc();
+        saveLocal();
+        render();
+        pushRemote();
+        showTracker();
+      }
+    };
+
+    $("themeSwitch").onclick = toggleTheme;
+    $("themeSwitch").addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        toggleTheme();
+      }
+    });
+
+    $("signUpBtn").onclick = async () => {
+      const email = $("authEmail").value.trim();
+      const pass = $("authPass").value;
+      if(!email || !pass){ alert("Enter email + password."); return; }
+      try{
+        await createUserWithEmailAndPassword(auth, email, pass);
+        alert("Account created! Sign in on your other device with the same email/password.");
+      }catch(e){
+        alert(e?.message || "Could not create account.");
+      }
+    };
+
+    $("signInBtn").onclick = async () => {
+      const email = $("authEmail").value.trim();
+      const pass = $("authPass").value;
+      if(!email || !pass){ alert("Enter email + password."); return; }
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+      }catch(e){
+        alert(e?.message || "Could not sign in.");
+      }
+    };
+
+    $("signOutBtn").onclick = async () => {
+      try{ await signOut(auth); }catch(e){}
+    };
+
+    loadTheme();
+    loadLocal();
+    recalc();
+    render();
+    showTracker();
+    initFirebase();
+  </script>
 </body>
 </html>
