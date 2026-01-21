@@ -7,26 +7,19 @@
   <title>Dom’s Daily Macros</title>
 
   <style>
-    /* =========================
-       THEME TOKENS
-       ========================= */
     :root{
-      /* page */
       --bg0:#0b0d12;
       --bg1:#10131a;
 
-      /* surfaces */
-      --panel: rgba(23,26,33,0.88);      /* big cards */
-      --panel2: rgba(0,0,0,0.14);        /* inner tiles */
+      --panel: rgba(23,26,33,0.88);
+      --panel2: rgba(0,0,0,0.14);
       --inputBg: rgba(0,0,0,0.18);
 
-      /* borders/text */
       --border: rgba(255,255,255,0.08);
       --shadow: rgba(0,0,0,0.25);
       --text:#e9ecf1;
       --muted:#aab2c0;
 
-      /* buttons */
       --btnBg:#202535;
       --btnText:#ffffff;
       --btnMutedBg:#141824;
@@ -34,22 +27,19 @@
       --dangerBg:#2a1420;
       --dangerText:#e9ecf1;
 
-      /* rings */
       --ringTrack:#2a2f3a;
       --calColor:#ffb703;
       --proColor:#7ee081;
       --fatColor:#4dabff;
       --fibColor:#b08cff;
 
-      /* gear / icon button */
       --iconBg: rgba(0,0,0,0.20);
       --iconBgHover: rgba(0,0,0,0.28);
       --iconText: var(--text);
 
-      --circ:289.02652413026095; /* 2πr for r=46 */
+      --circ:289.02652413026095;
     }
 
-    /* LIGHT MODE (match your “perfect” light vibe) */
     body.light{
       --bg0:#f5f7fb;
       --bg1:#e9eef8;
@@ -87,7 +77,6 @@
 
     .wrap{max-width:980px;margin:0 auto;padding:18px; position:relative;}
 
-    /* Header */
     .headerRow{
       display:flex;
       align-items:flex-start;
@@ -121,15 +110,8 @@
     }
     .iconBtn:active{ transform: translateY(1px); }
     .iconBtn:hover{ background:var(--iconBgHover); }
+    .iconBtn svg{ width:22px; height:22px; display:block; fill: currentColor; }
 
-    .iconBtn svg{
-      width:22px;
-      height:22px;
-      display:block;
-      fill: currentColor;
-    }
-
-    /* Cards */
     .card{
       background:var(--panel);
       border:1px solid var(--border);
@@ -154,7 +136,6 @@
       letter-spacing:-0.02em;
     }
 
-    /* Rings grid */
     .rings{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -176,41 +157,36 @@
     }
 
     .ringLabel{font-weight:950;font-size:20px}
-
-    .ring{
-      width:118px;height:118px;position:relative;
-    }
+    .ring{ width:118px;height:118px;position:relative; }
     .ring svg{width:118px;height:118px;transform:rotate(-90deg)}
     .center{
-      position:absolute;
-      inset:0;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
       gap:2px;
     }
     .big{font-size:24px;font-weight:950}
     .small{font-size:12px;color:var(--muted)}
-
     .track{stroke:var(--ringTrack);stroke-width:10;fill:none}
     .prog{
-      stroke-width:10;
-      fill:none;
-      stroke-linecap:round;
-      stroke-dasharray:var(--circ);
-      stroke-dashoffset:var(--circ);
+      stroke-width:10; fill:none; stroke-linecap:round;
+      stroke-dasharray:var(--circ); stroke-dashoffset:var(--circ);
     }
     .ringNums{font-size:13px;color:var(--muted);font-weight:800}
 
-    /* Inputs */
+    /* ✅ FIX: Add Entry inputs are 2x2 on phones, 4 across on larger screens */
     .formRow{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
       gap:10px;
       margin-top:10px;
+      grid-template-columns:repeat(2, minmax(0,1fr));
     }
+    @media (min-width: 760px){
+      .formRow{ grid-template-columns:repeat(4, minmax(0,1fr)); }
+    }
+
     input{
+      width:100%;
       padding:12px 12px;
       border-radius:14px;
       border:1px solid var(--border);
@@ -218,10 +194,10 @@
       color:var(--text);
       outline:none;
       font-weight:800;
+      min-width:0;
     }
     input::placeholder{color:color-mix(in srgb, var(--muted) 75%, transparent)}
 
-    /* Buttons */
     .btnRow{
       display:flex;
       gap:10px;
@@ -257,7 +233,6 @@
       cursor:pointer;
     }
 
-    /* Log */
     .log{
       display:flex;
       flex-direction:column;
@@ -293,7 +268,6 @@
     }
     body.light .delBtn{ background:rgba(10,18,32,0.06); }
 
-    /* Settings switch */
     .toggleRow{
       display:flex;
       align-items:center;
@@ -301,10 +275,7 @@
       gap:12px;
       flex-wrap:wrap;
     }
-    .toggleLabel{
-      font-weight:950;
-      color:var(--muted);
-    }
+    .toggleLabel{ font-weight:950; color:var(--muted); }
     .switch{
       position:relative;
       width:58px;height:34px;
@@ -327,8 +298,6 @@
     .switch.on .knob{ transform: translateX(24px); }
 
     .helpText{ color:var(--muted); font-size:12px; font-weight:800; margin-top:6px; }
-
-    /* Utility */
     .hidden{display:none !important;}
   </style>
 </head>
@@ -338,9 +307,7 @@
     <div class="headerRow">
       <h1 class="title">Dom’s Daily Macros</h1>
 
-      <!-- Gear button toggles Settings -->
       <button class="iconBtn" id="openSettings" aria-label="Open settings" title="Settings" type="button">
-        <!-- gear icon -->
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 11.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L.71 7.08a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.49.42h3.8c.24 0 .45-.18.49-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM10 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
         </svg>
@@ -350,7 +317,6 @@
     <!-- TRACKER -->
     <div id="mainView">
       <div class="card">
-        <!-- No "Progress" label, no totals pill (per request) -->
         <div class="rings">
           <div class="ringCard">
             <div class="ringLabel">Calories</div>
@@ -445,8 +411,6 @@
       <div class="card">
         <div class="sectionHead">
           <div class="sectionTitle">Settings</div>
-
-          <!-- "Done" button to return to tracker -->
           <button class="mutedBtn" id="closeSettings" type="button">Done</button>
         </div>
       </div>
@@ -493,8 +457,8 @@
 
 <script>
 (() => {
-  const KEY = "dom_macros_v5";
-  const KEY_THEME = "dom_macros_theme_v5";
+  const KEY = "dom_macros_v6";
+  const KEY_THEME = "dom_macros_theme_v6";
 
   let goals = { cal:2000, pro:120, fat:60, fib:30 };
   let state = { totals:{cal:0,pro:0,fat:0,fib:0}, log:[] };
@@ -520,8 +484,10 @@
     document.body.classList.toggle("light", isLight);
 
     const sw = $("themeSwitch");
-    sw.classList.toggle("on", isLight);
-    sw.setAttribute("aria-checked", String(isLight));
+    if (sw){
+      sw.classList.toggle("on", isLight);
+      sw.setAttribute("aria-checked", String(isLight));
+    }
 
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", isLight ? "#f5f7fb" : "#0b0d12");
@@ -581,37 +547,31 @@
   }
 
   function render(){
-    // goals labels
     $("calGoal").textContent = goals.cal;
     $("proGoal").textContent = goals.pro;
     $("fatGoal").textContent = goals.fat;
     $("fibGoal").textContent = goals.fib;
 
-    // totals numbers
     $("calNow").textContent = state.totals.cal;
     $("proNow").textContent = state.totals.pro;
     $("fatNow").textContent = state.totals.fat;
     $("fibNow").textContent = state.totals.fib;
 
-    // remaining / needed
     $("calRem").textContent = Math.max(0, Math.round(goals.cal - state.totals.cal));
     $("proRem").textContent = Math.max(0, Math.round((goals.pro - state.totals.pro) * 10)/10);
     $("fatRem").textContent = Math.max(0, Math.round((goals.fat - state.totals.fat) * 10)/10);
     $("fibRem").textContent = Math.max(0, Math.round((goals.fib - state.totals.fib) * 10)/10);
 
-    // rings (distinct colors)
     setRing($("ringCal"), state.totals.cal, goals.cal, "--calColor");
     setRing($("ringPro"), state.totals.pro, goals.pro, "--proColor");
     setRing($("ringFat"), state.totals.fat, goals.fat, "--fatColor");
     setRing($("ringFib"), state.totals.fib, goals.fib, "--fibColor");
 
-    // settings inputs prefill
     $("setCal").value = goals.cal;
     $("setPro").value = goals.pro;
     $("setFat").value = goals.fat;
     $("setFib").value = goals.fib;
 
-    // log
     const logEl = $("log");
     logEl.innerHTML = "";
     if (!state.log.length){
@@ -644,7 +604,6 @@
     });
   }
 
-  // Views
   function showTracker(){
     $("mainView").classList.remove("hidden");
     $("settingsView").classList.add("hidden");
@@ -656,7 +615,6 @@
     window.scrollTo(0,0);
   }
 
-  // Wire UI
   $("openSettings").onclick = showSettings;
   $("closeSettings").onclick = showTracker;
 
@@ -681,13 +639,12 @@
   };
 
   $("saveGoals").onclick = () => {
-    const newGoals = {
+    goals = {
       cal: Number($("setCal").value) || goals.cal,
       pro: Number($("setPro").value) || goals.pro,
       fat: Number($("setFat").value) || goals.fat,
       fib: Number($("setFib").value) || goals.fib
     };
-    goals = newGoals;
     save();
     render();
     alert("Goals updated!");
@@ -710,7 +667,6 @@
     }
   });
 
-  // Init
   loadTheme();
   load();
   recalc();
